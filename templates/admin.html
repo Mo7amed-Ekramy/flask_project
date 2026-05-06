@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel — Librarium{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Admin Panel</h1>
+  <p>Manage users, loans, and library operations.</p>
+</div>
+
+<!-- Quick Stats -->
+<div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr))">
+  <div class="stat-card">
+    <span class="stat-label">Total Users</span>
+    <span class="stat-value accent">{{ users|length }}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">All Borrowings</span>
+    <span class="stat-value">{{ all_borrowings|length }}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Overdue</span>
+    <span class="stat-value" style="color:var(--warning)">{{ overdue|length }}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Active Loans</span>
+    <span class="stat-value">{{ all_borrowings|selectattr('status','equalto','borrowed')|list|length }}</span>
+  </div>
+</div>
+
+{% if overdue %}
+<div class="card" style="border-color:var(--warning);background:rgba(224,160,64,.07);margin-bottom:1.5rem">
+  <div class="flex items-center gap-1" style="margin-bottom:.75rem">
+    <span style="color:var(--warning);font-size:1.1rem">⚠</span>
+    <strong style="color:var(--warning)">{{ overdue|length }} Overdue Loan{{ 's' if overdue|length != 1 }}</strong>
+  </div>
+  {% for b in overdue %}
+    <p class="text-sm text-muted">
+      <strong style="color:var(--text-primary)">{{ b.user.username }}</strong> — {{ b.book.title }}
+      <span style="color:var(--warning)"> (due {{ b.due_date.strftime('%b %d') }})</span>
+    </p>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Tabs -->
+<div class="tabs">
+  <a class="tab active" href="#users" onclick="showTab('users',this)">Users ({{ users|length }})</a>
+  <a class="tab" href="#loans" onclick="showTab('loans',this)">All Borrowings ({{ all_borrowings|length }})</a>
+</div>
+
+<!-- Users Table -->
+<div id="tab-users">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Username</th><th>Email</th><th>Role</th><th>Active Loans</th><th>Joined</th></tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td><strong>{{ u.username }}</strong></td>
+          <td class="text-muted">{{ u.email }}</td>
+          <td><span class="badge badge-{{ u.role }}">{{ u.role }}</span></td>
+          <td>{{ u.active_borrowings_count }}</td>
+          <td class="text-muted">{{ u.created_at.strftime('%b %d, %Y') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Borrowings Table -->
+<div id="tab-loans" style="display:none">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>User</th><th>Book</th><th>Borrowed</th><th>Due</th><th>Returned</th><th>Status</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        {% for b in all_borrowings %}
+        <tr>
+          <td><strong>{{ b.user.username }}</strong></td>
+          <td>{{ b.book.title }}</td>
+          <td>{{ b.borrow_date.strftime('%b %d, %Y') }}</td>
+          <td class="{% if b.is_overdue %}text-danger{% endif %}">
+            {{ b.due_date.strftime('%b %d, %Y') if b.due_date else '—' }}
+          </td>
+          <td>{{ b.return_date.strftime('%b %d, %Y') if b.return_date else '—' }}</td>
+          <td>
+            {% if b.status == 'returned' %}
+              <span class="badge badge-returned">Returned</span>
+            {% elif b.is_overdue %}
+              <span class="badge badge-overdue">Overdue</span>
+            {% else %}
+              <span class="badge badge-borrowed">Borrowed</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if b.status == 'borrowed' %}
+              <form method="POST" action="{{ url_for('main.return_book', borrowing_id=b.id) }}">
+                <button type="submit" class="btn btn-success btn-sm">Mark Returned</button>
+              </form>
+            {% else %}
+              <span class="text-muted text-xs">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  function showTab(name, el) {
+    event.preventDefault();
+    document.getElementById('tab-users').style.display = 'none';
+    document.getElementById('tab-loans').style.display = 'none';
+    document.getElementById('tab-' + name).style.display = 'block';
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Add Book — Librarium{% endblock %}
+
+{% block content %}
+<div style="max-width:580px;margin:0 auto">
+  <div class="page-header">
+    <h1>Add New Book</h1>
+    <p>Fill in the details to add a book to the collection.</p>
+  </div>
+
+  <div class="card">
+    <form method="POST" action="{{ url_for('main.add_book') }}">
+      <div class="form-group">
+        <label class="form-label" for="title">Title <span style="color:var(--danger)">*</span></label>
+        <input id="title" name="title" type="text" class="form-input" placeholder="Book title" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="author">Author <span style="color:var(--danger)">*</span></label>
+        <input id="author" name="author" type="text" class="form-input" placeholder="Author name(s)" required>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div class="form-group">
+          <label class="form-label" for="isbn">ISBN <span style="color:var(--danger)">*</span></label>
+          <input id="isbn" name="isbn" type="text" class="form-input" placeholder="978-…" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="genre">Genre</label>
+          <input id="genre" name="genre" type="text" class="form-input" placeholder="e.g. Fiction" list="genre-list">
+          <datalist id="genre-list">
+            <option value="Fiction">
+            <option value="Non-Fiction">
+            <option value="Science Fiction">
+            <option value="Technology">
+            <option value="History">
+            <option value="Biography">
+            <option value="Design">
+            <option value="Philosophy">
+          </datalist>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="description">Description</label>
+        <textarea id="description" name="description" class="form-textarea" placeholder="Short description of the book…"></textarea>
+      </div>
+      <div style="display:flex;gap:.75rem;justify-content:flex-end;margin-top:.5rem">
+        <a href="{{ url_for('main.books') }}" class="btn btn-ghost">Cancel</a>
+        <button type="submit" class="btn btn-primary">Add to Library</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

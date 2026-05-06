@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Librarium — Dashboard{% endblock %}
+
+{% block content %}
+
+{% if not current_user %}
+<div class="hero">
+  <h1>Your <span>Digital Library</span>,<br>Beautifully Managed.</h1>
+  <p>Browse thousands of books, track your reading history, and borrow titles with a single click. Built for curious minds.</p>
+  <div class="hero-actions">
+    <a href="{{ url_for('main.register') }}" class="btn btn-primary">Get Started Free</a>
+    <a href="{{ url_for('main.books') }}" class="btn btn-ghost">Browse Books →</a>
+  </div>
+</div>
+{% else %}
+<div class="page-header flex items-center justify-between">
+  <div>
+    <h1>Good day, {{ current_user.username }} 👋</h1>
+    <p>Here's your library overview.</p>
+  </div>
+  {% if current_user.is_admin %}
+    <a href="{{ url_for('main.add_book') }}" class="btn btn-primary">+ Add Book</a>
+  {% endif %}
+</div>
+{% endif %}
+
+<!-- Stats -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <span class="stat-label">Total Books</span>
+    <span class="stat-value accent">{{ total_books }}</span>
+    <span class="stat-sub">In the collection</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Available</span>
+    <span class="stat-value">{{ available_books }}</span>
+    <span class="stat-sub">Ready to borrow</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Members</span>
+    <span class="stat-value">{{ total_users }}</span>
+    <span class="stat-sub">Registered readers</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Active Loans</span>
+    <span class="stat-value">{{ active_borrowings }}</span>
+    <span class="stat-sub">Currently borrowed</span>
+  </div>
+</div>
+
+{% if current_user and my_borrowings %}
+<div class="section-header">
+  <span class="section-title">📌 Your Active Loans</span>
+  <a href="{{ url_for('main.my_borrowings') }}" class="btn btn-ghost btn-sm">View All</a>
+</div>
+<div class="table-wrap mb-2">
+  <table>
+    <thead>
+      <tr><th>Book</th><th>Author</th><th>Due Date</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+      {% for b in my_borrowings %}
+      <tr>
+        <td><strong>{{ b.book.title }}</strong></td>
+        <td>{{ b.book.author }}</td>
+        <td class="{% if b.is_overdue %}text-danger{% endif %}">
+          {{ b.due_date.strftime('%b %d, %Y') if b.due_date else '—' }}
+          {% if b.is_overdue %}<span class="badge badge-overdue" style="margin-left:.5rem">Overdue</span>{% endif %}
+        </td>
+        <td>
+          <form method="POST" action="{{ url_for('main.return_book', borrowing_id=b.id) }}">
+            <button type="submit" class="btn btn-success btn-sm">Return</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="divider"></div>
+{% endif %}
+
+<!-- Recent Books -->
+<div class="section-header">
+  <span class="section-title">✨ Recently Added</span>
+  <a href="{{ url_for('main.books') }}" class="btn btn-ghost btn-sm">Browse All →</a>
+</div>
+
+<div class="books-grid">
+  {% for book in recent_books %}
+  <div class="book-card">
+    <div>
+      <div class="book-title">{{ book.title }}</div>
+      <div class="book-author">by {{ book.author }}</div>
+    </div>
+    {% if book.description %}
+      <p class="text-xs text-muted" style="line-height:1.5">{{ book.description[:100] }}{% if book.description|length > 100 %}…{% endif %}</p>
+    {% endif %}
+    <div class="book-meta">
+      <span class="badge {% if book.is_available %}badge-available{% else %}badge-borrowed{% endif %}">
+        {% if book.is_available %}Available{% else %}Borrowed{% endif %}
+      </span>
+      {% if book.genre %}<span class="book-genre">{{ book.genre }}</span>{% endif %}
+    </div>
+    <div class="book-isbn">ISBN: {{ book.isbn }}</div>
+    {% if current_user and book.is_available %}
+      <form method="POST" action="{{ url_for('main.borrow_book', book_id=book.id) }}" style="margin-top:.25rem">
+        <button type="submit" class="btn btn-primary btn-sm w-full">Borrow</button>
+      </form>
+    {% elif not current_user %}
+      <a href="{{ url_for('main.login') }}" class="btn btn-ghost btn-sm w-full">Log in to borrow</a>
+    {% else %}
+      <button class="btn btn-ghost btn-sm w-full" disabled>Unavailable</button>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

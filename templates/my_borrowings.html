@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}My Books — Librarium{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>My Books</h1>
+  <p>Track your active loans and reading history.</p>
+</div>
+
+<!-- Active Loans -->
+<div class="section-header">
+  <span class="section-title">📖 Active Loans ({{ active|length }})</span>
+</div>
+
+{% if active %}
+<div class="table-wrap mb-2">
+  <table>
+    <thead>
+      <tr><th>Book</th><th>Author</th><th>Borrowed On</th><th>Due Date</th><th>Status</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+      {% for b in active %}
+      <tr>
+        <td><strong>{{ b.book.title }}</strong></td>
+        <td>{{ b.book.author }}</td>
+        <td>{{ b.borrow_date.strftime('%b %d, %Y') }}</td>
+        <td class="{% if b.is_overdue %}text-danger{% endif %}">
+          {{ b.due_date.strftime('%b %d, %Y') if b.due_date else '—' }}
+        </td>
+        <td>
+          {% if b.is_overdue %}
+            <span class="badge badge-overdue">Overdue</span>
+          {% else %}
+            <span class="badge badge-borrowed">Borrowed</span>
+          {% endif %}
+        </td>
+        <td>
+          <form method="POST" action="{{ url_for('main.return_book', borrowing_id=b.id) }}">
+            <button type="submit" class="btn btn-success btn-sm">Return Book</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state" style="padding:2rem">
+  <div class="empty-state-icon">📚</div>
+  <h3>No active loans</h3>
+  <p>Browse the library and borrow a book to get started.</p>
+  <a href="{{ url_for('main.books') }}" class="btn btn-primary" style="margin-top:1rem">Browse Books</a>
+</div>
+{% endif %}
+
+<div class="divider"></div>
+
+<!-- History -->
+<div class="section-header">
+  <span class="section-title">🕒 Reading History ({{ history|length }})</span>
+</div>
+
+{% if history %}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Book</th><th>Author</th><th>Borrowed</th><th>Returned</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      {% for b in history %}
+      <tr>
+        <td><strong>{{ b.book.title }}</strong></td>
+        <td>{{ b.book.author }}</td>
+        <td>{{ b.borrow_date.strftime('%b %d, %Y') }}</td>
+        <td>{{ b.return_date.strftime('%b %d, %Y') if b.return_date else '—' }}</td>
+        <td><span class="badge badge-returned">Returned</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state" style="padding:2rem">
+  <div class="empty-state-icon">🕰️</div>
+  <h3>No reading history yet</h3>
+  <p>Returned books will appear here.</p>
+</div>
+{% endif %}
+{% endblock %}

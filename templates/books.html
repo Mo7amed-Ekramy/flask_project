@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Browse Books — Librarium{% endblock %}
+
+{% block content %}
+<div class="page-header flex items-center justify-between">
+  <div>
+    <h1>Browse Books</h1>
+    <p>{{ books|length }} book{{ 's' if books|length != 1 else '' }} found</p>
+  </div>
+  {% if current_user and current_user.is_admin %}
+    <a href="{{ url_for('main.add_book') }}" class="btn btn-primary">+ Add Book</a>
+  {% endif %}
+</div>
+
+<!-- Search & Filter -->
+<form method="GET" action="{{ url_for('main.books') }}" class="search-bar">
+  <div class="search-input-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" name="q" value="{{ search }}" class="form-input" placeholder="Search title or author…">
+  </div>
+  <select name="genre" class="form-select" style="width:auto;min-width:140px">
+    <option value="">All Genres</option>
+    {% for g in genres %}
+      <option value="{{ g }}" {% if genre_filter == g %}selected{% endif %}>{{ g }}</option>
+    {% endfor %}
+  </select>
+  <select name="availability" class="form-select" style="width:auto;min-width:140px">
+    <option value="all"       {% if availability == 'all'       %}selected{% endif %}>All Books</option>
+    <option value="available" {% if availability == 'available' %}selected{% endif %}>Available Only</option>
+    <option value="borrowed"  {% if availability == 'borrowed'  %}selected{% endif %}>Borrowed</option>
+  </select>
+  <button type="submit" class="btn btn-primary">Search</button>
+  {% if search or genre_filter or availability != 'all' %}
+    <a href="{{ url_for('main.books') }}" class="btn btn-ghost">Clear</a>
+  {% endif %}
+</form>
+
+{% if books %}
+<div class="books-grid">
+  {% for book in books %}
+  <div class="book-card">
+    <div>
+      <div class="book-title">{{ book.title }}</div>
+      <div class="book-author">by {{ book.author }}</div>
+    </div>
+    {% if book.description %}
+      <p class="text-xs text-muted" style="line-height:1.5">{{ book.description[:110] }}{% if book.description|length > 110 %}…{% endif %}</p>
+    {% endif %}
+    <div class="book-meta">
+      <span class="badge {% if book.is_available %}badge-available{% else %}badge-borrowed{% endif %}">
+        {% if book.is_available %}Available{% else %}Borrowed{% endif %}
+      </span>
+      {% if book.genre %}<span class="book-genre">{{ book.genre }}</span>{% endif %}
+    </div>
+    <div class="book-isbn">ISBN: {{ book.isbn }}</div>
+
+    <div style="display:flex;gap:.5rem;margin-top:.25rem">
+      {% if current_user and book.is_available %}
+        <form method="POST" action="{{ url_for('main.borrow_book', book_id=book.id) }}" style="flex:1">
+          <button type="submit" class="btn btn-primary btn-sm w-full">Borrow</button>
+        </form>
+      {% elif not current_user %}
+        <a href="{{ url_for('main.login') }}" class="btn btn-ghost btn-sm" style="flex:1;justify-content:center">Log in to borrow</a>
+      {% else %}
+        <button class="btn btn-ghost btn-sm" style="flex:1" disabled>Unavailable</button>
+      {% endif %}
+
+      {% if current_user and current_user.is_admin %}
+        <form method="POST" action="{{ url_for('main.delete_book', book_id=book.id) }}"
+              onsubmit="return confirm('Delete \'{{ book.title }}\'?')">
+          <button type="submit" class="btn btn-danger btn-sm">🗑</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-state-icon">📭</div>
+  <h3>No books found</h3>
+  <p>Try adjusting your search or filters.</p>
+  {% if current_user and current_user.is_admin %}
+    <a href="{{ url_for('main.add_book') }}" class="btn btn-primary" style="margin-top:1rem">+ Add the first book</a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}
