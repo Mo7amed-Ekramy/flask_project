@@ -197,9 +197,3 @@ See [`docs/system_design.md`](docs/system_design.md) for:
 - Sequence Diagram (Borrow Flow)
 
 All diagrams are written in **Mermaid.js** syntax — render them on [mermaid.live](https://mermaid.live) or in any Markdown viewer that supports Mermaid.
-
----
-
-## 📄 License
-
-MIT — free to use, modify, and distribute.
