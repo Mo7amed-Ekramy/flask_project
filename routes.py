@@ -3,6 +3,7 @@ from functools import wraps
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from models import db, User, Book, Borrowing
+from forms import RegisterForm, LoginForm, AddBookForm
 
 main = Blueprint("main", __name__)
 
@@ -59,7 +60,7 @@ def dashboard():
     recent_books = Book.query.order_by(Book.added_at.desc()).limit(6).all()
 
     my_borrowings = []
-    if user:
+    if user and not user.is_admin:
         my_borrowings = (
             Borrowing.query
             .filter_by(user_id=user.id, status="borrowed")
@@ -83,28 +84,18 @@ def register():
     if "user_id" in session:
         return redirect(url_for("main.dashboard"))
 
-    if request.method == "POST":
-        username = request.form.get("username", "").strip()
-        email = request.form.get("email", "").strip().lower()
-        password = request.form.get("password", "")
-        confirm = request.form.get("confirm_password", "")
+    form = RegisterForm()
+    if form.validate_on_submit():
+        username = form.username.data.strip()
+        email = form.email.data.strip().lower()
+        password = form.password.data
 
-        # Validation
-        if not all([username, email, password, confirm]):
-            flash("All fields are required.", "danger")
-            return render_template("register.html")
-        if password != confirm:
-            flash("Passwords do not match.", "danger")
-            return render_template("register.html")
-        if len(password) < 6:
-            flash("Password must be at least 6 characters.", "danger")
-            return render_template("register.html")
         if User.query.filter_by(username=username).first():
             flash("Username already taken.", "danger")
-            return render_template("register.html")
+            return render_template("register.html", form=form)
         if User.query.filter_by(email=email).first():
             flash("Email already registered.", "danger")
-            return render_template("register.html")
+            return render_template("register.html", form=form)
 
         user = User(username=username, email=email, role="member")
         user.set_password(password)
@@ -114,7 +105,7 @@ def register():
         flash("Account created! Please log in.", "success")
         return redirect(url_for("main.login"))
 
-    return render_template("register.html")
+    return render_template("register.html", form=form)
 
 
 @main.route("/login", methods=["GET", "POST"])
@@ -122,9 +113,10 @@ def login():
     if "user_id" in session:
         return redirect(url_for("main.dashboard"))
 
-    if request.method == "POST":
-        identifier = request.form.get("identifier", "").strip()
-        password = request.form.get("password", "")
+    form = LoginForm()
+    if form.validate_on_submit():
+        identifier = form.identifier.data.strip()
+        password = form.password.data
 
         user = User.query.filter(
             (User.username == identifier) | (User.email == identifier.lower())
@@ -140,7 +132,7 @@ def login():
         else:
             flash("Invalid credentials. Please try again.", "danger")
 
-    return render_template("login.html")
+    return render_template("login.html", form=form)
 
 
 @main.route("/logout")
@@ -181,26 +173,24 @@ def books():
 @main.route("/books/add", methods=["GET", "POST"])
 @admin_required
 def add_book():
-    if request.method == "POST":
-        title = request.form.get("title", "").strip()
-        author = request.form.get("author", "").strip()
-        isbn = request.form.get("isbn", "").strip()
-        genre = request.form.get("genre", "").strip()
-        description = request.form.get("description", "").strip()
+    form = AddBookForm()
+    if form.validate_on_submit():
+        title = form.title.data.strip()
+        author = form.author.data.strip()
+        isbn = form.isbn.data.strip()
+        genre = form.genre.data.strip() if form.genre.data else None
+        description = form.description.data.strip() if form.description.data else None
 
-        if not all([title, author, isbn]):
-            flash("Title, author and ISBN are required.", "danger")
-            return render_template("add_book.html")
         if Book.query.filter_by(isbn=isbn).first():
             flash("A book with this ISBN already exists.", "danger")
-            return render_template("add_book.html")
+            return render_template("add_book.html", form=form)
 
         book = Book(
             title=title,
             author=author,
             isbn=isbn,
-            genre=genre or None,
-            description=description or None,
+            genre=genre,
+            description=description,
             availability_status=True,
         )
         db.session.add(book)
@@ -208,7 +198,7 @@ def add_book():
         flash(f'"{title}" has been added to the library.', "success")
         return redirect(url_for("main.books"))
 
-    return render_template("add_book.html")
+    return render_template("add_book.html", form=form)
 
 
 @main.route("/books/delete/<int:book_id>", methods=["POST"])
@@ -218,6 +208,7 @@ def delete_book(book_id):
     if not book.availability_status:
         flash("Cannot delete a book that is currently borrowed.", "danger")
         return redirect(url_for("main.books"))
+    Borrowing.query.filter_by(book_id=book.id).delete()
     db.session.delete(book)
     db.session.commit()
     flash(f'"{book.title}" has been removed.', "info")
@@ -229,6 +220,10 @@ def delete_book(book_id):
 def borrow_book(book_id):
     book = Book.query.get_or_404(book_id)
     user = current_user()
+
+    if user.is_admin:
+        flash("Admins are not allowed to borrow books.", "danger")
+        return redirect(url_for("main.books"))
 
     if not book.is_available:
         flash("This book is not available for borrowing.", "danger")
@@ -281,6 +276,8 @@ def return_book(borrowing_id):
 @login_required
 def my_borrowings():
     user = current_user()
+    if user.is_admin:
+        return redirect(url_for("main.dashboard"))
     active = (
         Borrowing.query
         .filter_by(user_id=user.id, status="borrowed")

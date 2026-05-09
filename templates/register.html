@@ -11,23 +11,28 @@
     </div>
 
     <form method="POST" action="{{ url_for('main.register') }}">
+      {{ form.hidden_tag() }}
       <div class="form-group">
-        <label class="form-label" for="username">Username</label>
-        <input id="username" name="username" type="text" class="form-input" placeholder="Choose a username" required autofocus>
+        {{ form.username.label(class="form-label") }}
+        {{ form.username(class="form-input", placeholder="Choose a username", autofocus=True) }}
+        {% for error in form.username.errors %}<div class="text-danger text-xs mt-1">{{ error }}</div>{% endfor %}
       </div>
       <div class="form-group">
-        <label class="form-label" for="email">Email address</label>
-        <input id="email" name="email" type="email" class="form-input" placeholder="you@example.com" required>
+        {{ form.email.label(class="form-label") }}
+        {{ form.email(class="form-input", placeholder="you@example.com") }}
+        {% for error in form.email.errors %}<div class="text-danger text-xs mt-1">{{ error }}</div>{% endfor %}
       </div>
       <div class="form-group">
-        <label class="form-label" for="password">Password</label>
-        <input id="password" name="password" type="password" class="form-input" placeholder="At least 6 characters" required minlength="6">
+        {{ form.password.label(class="form-label") }}
+        {{ form.password(class="form-input", placeholder="At least 6 characters") }}
+        {% for error in form.password.errors %}<div class="text-danger text-xs mt-1">{{ error }}</div>{% endfor %}
       </div>
       <div class="form-group">
-        <label class="form-label" for="confirm_password">Confirm Password</label>
-        <input id="confirm_password" name="confirm_password" type="password" class="form-input" placeholder="Repeat your password" required>
+        {{ form.confirm_password.label(class="form-label") }}
+        {{ form.confirm_password(class="form-input", placeholder="Repeat your password") }}
+        {% for error in form.confirm_password.errors %}<div class="text-danger text-xs mt-1">{{ error }}</div>{% endfor %}
       </div>
-      <button type="submit" class="btn btn-primary w-full" style="justify-content:center;margin-top:.5rem">Create Account</button>
+      {{ form.submit(class="btn btn-primary w-full", style="justify-content:center;margin-top:.5rem") }}
     </form>
 
     <div class="auth-footer">

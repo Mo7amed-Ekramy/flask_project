@@ -354,7 +354,9 @@
     <a href="{{ url_for('main.dashboard') }}" class="nav-link {% if request.endpoint == 'main.dashboard' %}active{% endif %}">Home</a>
     <a href="{{ url_for('main.books') }}"     class="nav-link {% if request.endpoint == 'main.books' %}active{% endif %}">Browse</a>
     {% if current_user %}
-      <a href="{{ url_for('main.my_borrowings') }}" class="nav-link {% if request.endpoint == 'main.my_borrowings' %}active{% endif %}">My Books</a>
+      {% if not current_user.is_admin %}
+        <a href="{{ url_for('main.my_borrowings') }}" class="nav-link {% if request.endpoint == 'main.my_borrowings' %}active{% endif %}">My Books</a>
+      {% endif %}
       {% if current_user.is_admin %}
         <a href="{{ url_for('main.admin_panel') }}" class="nav-link accent">Admin</a>
         <a href="{{ url_for('main.add_book') }}" class="nav-link">+ Add Book</a>

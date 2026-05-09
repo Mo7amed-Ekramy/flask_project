@@ -103,13 +103,13 @@
       {% if book.genre %}<span class="book-genre">{{ book.genre }}</span>{% endif %}
     </div>
     <div class="book-isbn">ISBN: {{ book.isbn }}</div>
-    {% if current_user and book.is_available %}
+    {% if current_user and not current_user.is_admin and book.is_available %}
       <form method="POST" action="{{ url_for('main.borrow_book', book_id=book.id) }}" style="margin-top:.25rem">
         <button type="submit" class="btn btn-primary btn-sm w-full">Borrow</button>
       </form>
     {% elif not current_user %}
       <a href="{{ url_for('main.login') }}" class="btn btn-ghost btn-sm w-full">Log in to borrow</a>
-    {% else %}
+    {% elif current_user and not current_user.is_admin %}
       <button class="btn btn-ghost btn-sm w-full" disabled>Unavailable</button>
     {% endif %}
   </div>

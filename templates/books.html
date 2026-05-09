@@ -55,13 +55,13 @@
     <div class="book-isbn">ISBN: {{ book.isbn }}</div>
 
     <div style="display:flex;gap:.5rem;margin-top:.25rem">
-      {% if current_user and book.is_available %}
+      {% if current_user and not current_user.is_admin and book.is_available %}
         <form method="POST" action="{{ url_for('main.borrow_book', book_id=book.id) }}" style="flex:1">
           <button type="submit" class="btn btn-primary btn-sm w-full">Borrow</button>
         </form>
       {% elif not current_user %}
         <a href="{{ url_for('main.login') }}" class="btn btn-ghost btn-sm" style="flex:1;justify-content:center">Log in to borrow</a>
-      {% else %}
+      {% elif current_user and not current_user.is_admin %}
         <button class="btn btn-ghost btn-sm" style="flex:1" disabled>Unavailable</button>
       {% endif %}
 
