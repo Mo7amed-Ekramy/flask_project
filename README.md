@@ -6,27 +6,27 @@ A simple and functional Flask web application for managing a digital library. Fe
 
 ## 👥 Team Members
 
-1. [Member 1 Name]
-2. [Member 2 Name]
-3. [Member 3 Name]
-4. [Member 4 Name]
-5. [Member 5 Name]
-*(Add 6th and 7th members here if applicable)*
+1. Mohamed Ekramy
+2. Mahmoud Sayed
+3. Mohamed El Motaz
+4. Tammer yasser
+5. Alla Mamdouh
+6. Julia Osama
 
 ---
 
 ## ✨ Features
 
-| Feature | Details |
-|---|---|
-| **Authentication** | Register, login, logout with hashed passwords (Werkzeug) |
-| **Role-based Access** | `admin` and `member` roles with route guards |
-| **Book Management** | Add, browse, search, filter, and delete books |
-| **Borrowing System** | Borrow & return books with due dates (14-day window) |
-| **Admin Dashboard** | User list, all borrowings, overdue loan alerts |
-| **Dark UI** | Custom dark theme with Playfair Display typography |
-| **Seeded Demo Data** | Admin + member account + 6 sample books on first run |
-| **Docker Ready** | Dockerfile + docker-compose for one-command deployment |
+| Feature               | Details                                                  |
+| --------------------- | -------------------------------------------------------- |
+| **Authentication**    | Register, login, logout with hashed passwords (Werkzeug) |
+| **Role-based Access** | `admin` and `member` roles with route guards             |
+| **Book Management**   | Add, browse, search, filter, and delete books            |
+| **Borrowing System**  | Borrow & return books with due dates (14-day window)     |
+| **Admin Dashboard**   | User list, all borrowings, overdue loan alerts           |
+| **Dark UI**           | Custom dark theme with Playfair Display typography       |
+| **Seeded Demo Data**  | Admin + member account + 6 sample books on first run     |
+| **Docker Ready**      | Dockerfile + docker-compose for one-command deployment   |
 
 ---
 
@@ -59,6 +59,7 @@ librarium/
 ## 🚀 Running Locally
 
 ### Prerequisites
+
 - Python 3.10+
 - pip
 
@@ -103,10 +104,10 @@ The app will be available at **http://localhost:5000**
 
 ## 🔑 Default Credentials (Seeded on First Run)
 
-| Role | Username | Password |
-|------|----------|----------|
-| Admin | `admin` | `admin123` |
-| Member | `alice` | `alice123` |
+| Role   | Username | Password   |
+| ------ | -------- | ---------- |
+| Admin  | `admin`  | `admin123` |
+| Member | `alice`  | `alice123` |
 
 > **Change these immediately in production!**
 
@@ -114,59 +115,62 @@ The app will be available at **http://localhost:5000**
 
 ## 🌐 Endpoints
 
-| Method | Route | Auth | Description |
-|--------|-------|------|-------------|
-| GET | `/` | Public | Dashboard / Home |
-| GET | `/register` | Public | Registration form |
-| POST | `/register` | Public | Create new member account |
-| GET | `/login` | Public | Login form |
-| POST | `/login` | Public | Authenticate user |
-| GET | `/logout` | Member | End session |
-| GET | `/books` | Public | Browse all books (with search & filter) |
-| GET | `/books/add` | Admin | Add book form |
-| POST | `/books/add` | Admin | Submit new book |
-| POST | `/books/delete/<id>` | Admin | Delete a book |
-| POST | `/borrow/<book_id>` | Member | Borrow a book |
-| POST | `/return/<borrowing_id>` | Member / Admin | Return a borrowed book |
-| GET | `/my-borrowings` | Member | View personal loans |
-| GET | `/admin` | Admin | Admin panel |
+| Method | Route                    | Auth           | Description                             |
+| ------ | ------------------------ | -------------- | --------------------------------------- |
+| GET    | `/`                      | Public         | Dashboard / Home                        |
+| GET    | `/register`              | Public         | Registration form                       |
+| POST   | `/register`              | Public         | Create new member account               |
+| GET    | `/login`                 | Public         | Login form                              |
+| POST   | `/login`                 | Public         | Authenticate user                       |
+| GET    | `/logout`                | Member         | End session                             |
+| GET    | `/books`                 | Public         | Browse all books (with search & filter) |
+| GET    | `/books/add`             | Admin          | Add book form                           |
+| POST   | `/books/add`             | Admin          | Submit new book                         |
+| POST   | `/books/delete/<id>`     | Admin          | Delete a book                           |
+| POST   | `/borrow/<book_id>`      | Member         | Borrow a book                           |
+| POST   | `/return/<borrowing_id>` | Member / Admin | Return a borrowed book                  |
+| GET    | `/my-borrowings`         | Member         | View personal loans                     |
+| GET    | `/admin`                 | Admin          | Admin panel                             |
 
 ---
 
 ## 🗄 Database Schema
 
 ### `users`
-| Column | Type | Notes |
-|--------|------|-------|
-| id | INTEGER | PK |
-| username | VARCHAR(80) | UNIQUE |
-| email | VARCHAR(120) | UNIQUE |
-| password_hash | VARCHAR(256) | Werkzeug hash |
-| role | VARCHAR(20) | `admin` or `member` |
-| created_at | DATETIME | Auto |
+
+| Column        | Type         | Notes               |
+| ------------- | ------------ | ------------------- |
+| id            | INTEGER      | PK                  |
+| username      | VARCHAR(80)  | UNIQUE              |
+| email         | VARCHAR(120) | UNIQUE              |
+| password_hash | VARCHAR(256) | Werkzeug hash       |
+| role          | VARCHAR(20)  | `admin` or `member` |
+| created_at    | DATETIME     | Auto                |
 
 ### `books`
-| Column | Type | Notes |
-|--------|------|-------|
-| id | INTEGER | PK |
-| title | VARCHAR(200) | |
-| author | VARCHAR(150) | |
-| isbn | VARCHAR(20) | UNIQUE |
-| genre | VARCHAR(80) | Optional |
-| description | TEXT | Optional |
-| availability_status | BOOLEAN | True = available |
-| added_at | DATETIME | Auto |
+
+| Column              | Type         | Notes            |
+| ------------------- | ------------ | ---------------- |
+| id                  | INTEGER      | PK               |
+| title               | VARCHAR(200) |                  |
+| author              | VARCHAR(150) |                  |
+| isbn                | VARCHAR(20)  | UNIQUE           |
+| genre               | VARCHAR(80)  | Optional         |
+| description         | TEXT         | Optional         |
+| availability_status | BOOLEAN      | True = available |
+| added_at            | DATETIME     | Auto             |
 
 ### `borrowings`
-| Column | Type | Notes |
-|--------|------|-------|
-| id | INTEGER | PK |
-| user_id | INTEGER | FK → users.id |
-| book_id | INTEGER | FK → books.id |
-| borrow_date | DATETIME | Auto |
-| due_date | DATETIME | +14 days |
-| return_date | DATETIME | Set on return |
-| status | VARCHAR(20) | `borrowed` / `returned` |
+
+| Column      | Type        | Notes                   |
+| ----------- | ----------- | ----------------------- |
+| id          | INTEGER     | PK                      |
+| user_id     | INTEGER     | FK → users.id           |
+| book_id     | INTEGER     | FK → books.id           |
+| borrow_date | DATETIME    | Auto                    |
+| due_date    | DATETIME    | +14 days                |
+| return_date | DATETIME    | Set on return           |
+| status      | VARCHAR(20) | `borrowed` / `returned` |
 
 ---
 
@@ -186,6 +190,7 @@ python -c "import secrets; print(secrets.token_hex(32))"
 ## 📐 System Design
 
 See [`docs/system_design.md`](docs/system_design.md) for:
+
 - Entity-Relationship Diagram (ERD)
 - Data Flow Diagram — Level 0 (Context)
 - Data Flow Diagram — Level 1 (Internal Processes)
