@@ -10,8 +10,9 @@ A simple and functional Flask web application for managing a digital library. Fe
 2. Mahmoud Sayed
 3. Mohamed El Motaz
 4. Tammer yasser
-5. Alla Mamdouh
+5. Alaa Mamdouh
 6. Julia Osama
+7. Fahmy Hashem
 
 ---
 

@@ -11,8 +11,6 @@ class Config:
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PERMANENT_SESSION_LIFETIME = timedelta(hours=2)
-    WTF_CSRF_ENABLED = True
-
 
 class DevelopmentConfig(Config):
     DEBUG = True

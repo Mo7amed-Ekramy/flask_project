@@ -1,0 +1,24 @@
+# # Environments
+# .env
+# .flaskenv
+# .venv
+# env/
+# venv/
+# ENV/
+# env.bak/
+# venv.bak/
+
+# # Byte-compiled / optimized / DLL files
+# __pycache__/
+# *.py[cod]
+# *$py.class
+
+# # SQLite databases
+# *.db
+# *.sqlite3
+# library.db
+
+# # VS Code / IDEs
+# .vscode/
+# .idea/
+# *.swp
