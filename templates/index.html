@@ -36,11 +36,13 @@
     <span class="stat-value">{{ available_books }}</span>
     <span class="stat-sub">Ready to borrow</span>
   </div>
-  <div class="stat-card">
-    <span class="stat-label">Members</span>
-    <span class="stat-value">{{ total_users }}</span>
-    <span class="stat-sub">Registered readers</span>
-  </div>
+  {% if current_user and current_user.is_admin %}
+    <div class="stat-card">
+      <span class="stat-label">Total Members</span>
+      <span class="stat-value">{{ total_users }}</span>
+      <span class="stat-sub">Registered readers</span>
+    </div>
+  {% endif %}
   <div class="stat-card">
     <span class="stat-label">Active Loans</span>
     <span class="stat-value">{{ active_borrowings }}</span>
