@@ -56,7 +56,6 @@ def dashboard():
     available_books = Book.query.filter_by(availability_status=True).count()
     total_users = User.query.filter_by(role="member").count() if user and user.is_admin else None
     active_borrowings = Borrowing.query.filter_by(status="borrowed").count()
-
     recent_books = Book.query.order_by(Book.added_at.desc()).limit(6).all()
 
     my_borrowings = []
