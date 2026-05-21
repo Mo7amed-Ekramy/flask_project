@@ -10,10 +10,10 @@ main = Blueprint("main", __name__)
 
 # ─── Auth Helpers ────────────────────────────────────────────────────────────
 
-def login_required(f):
+def login_required(f): # www.xxx.com-sds-sdsd-sd
     @wraps(f)
     def decorated(*args, **kwargs):
-        if "user_id" not in session:
+        if "user_id" not in session: 
             flash("Please log in to continue.", "warning")
             return redirect(url_for("main.login"))
         return f(*args, **kwargs)
@@ -203,7 +203,7 @@ def add_book():
 @main.route("/books/delete/<int:book_id>", methods=["POST"])
 @admin_required
 def delete_book(book_id):
-    book = Book.query.get_or_404(book_id)
+    book = Book.query.get_or_404(book_id) 
     if not book.availability_status:
         flash("Cannot delete a book that is currently borrowed.", "danger")
         return redirect(url_for("main.books"))
