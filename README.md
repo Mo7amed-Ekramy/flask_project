@@ -7,12 +7,10 @@ A simple and functional Flask web application for managing a digital library. Fe
 ## 👥 Team Members
 
 1. Mohamed Ekramy
-2. Mahmoud Sayed
-3. Mohamed El Motaz
-4. Tamer yasser
-5. Alaa Mamdouh
-6. Julia Osama
-7. Fahmy Hashem
+2. 
+3. 
+4. 
+5. 
 
 ---
 
