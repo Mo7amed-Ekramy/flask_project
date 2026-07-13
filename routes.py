@@ -10,7 +10,7 @@ main = Blueprint("main", __name__)
 
 # ─── Auth Helpers ────────────────────────────────────────────────────────────
 
-def login_required(f): # www.xxx.com-sds-sdsd-sd
+def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if "user_id" not in session: 
