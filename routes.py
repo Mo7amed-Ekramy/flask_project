@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 from functools import wraps
 
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
+from sqlalchemy.exc import SQLAlchemyError
 from models import db, User, Book, Borrowing
 from forms import RegisterForm, LoginForm, AddBookForm
 
@@ -242,8 +243,19 @@ def borrow_book(book_id):
     )
     book.availability_status = False
 
-    db.session.add(borrowing)
-    db.session.commit()
+    try:
+        db.session.add(borrowing)
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        current_app.logger.exception(
+            "Borrowing commit failed for book_id=%s user_id=%s",
+            book.id,
+            user.id,
+        )
+        flash("Could not borrow this book right now. Please try again later.", "danger")
+        return redirect(url_for("main.books"))
+
     flash(f'You borrowed "{book.title}". Due in 14 days.', "success")
     return redirect(url_for("main.my_borrowings"))
 
