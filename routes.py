@@ -99,8 +99,18 @@ def register():
 
         user = User(username=username, email=email, role="member")
         user.set_password(password)
-        db.session.add(user)
-        db.session.commit()
+
+        try:
+            db.session.add(user)
+            db.session.commit()
+        except SQLAlchemyError:
+            db.session.rollback()
+            current_app.logger.exception(
+                "Registration commit failed for username=%s",
+                username,
+            )
+            flash("Could not create your account right now. Please try again later.", "danger")
+            return render_template("register.html", form=form)
 
         flash("Account created! Please log in.", "success")
         return redirect(url_for("main.login"))
